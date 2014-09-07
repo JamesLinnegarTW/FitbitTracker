@@ -6,7 +6,7 @@ $(function(){
     var lastRender = new Date();
     var stations = {};
     var stations = [];
-
+    var dragID;
 		var   W = window.innerWidth - 20,
 		   		H = window.innerHeight - 20;
 
@@ -155,12 +155,32 @@ $(function(){
 
 
 
-    $('#canvas').on('click', function(evt){
-      console.log(evt.clientX);
-      //evt.clientY;
-      console.log(stations['A']);
-      stations['A'].setCoords(evt.clientX, evt.clientY);
+
+    $('#canvas').on('mousemove', function(evt){
+      if(dragID && stations[dragID])
+        stations[dragID].setCoords(evt.clientX - 10, evt.clientY - 10);
+    }).on('mousedown', function(evt){
+      var x = evt.clientX;
+      var y = evt.clientY;
+
+      var stationKeys = Object.keys(stations);
+
+      for(var i = 0; i < stationKeys.length; i++){
+        var station = stations[stationKeys[i]];
+        var coords = station.getCoords();
+
+        if((((coords.x - 20) < x) && ((coords.x + 20) > x)) &&
+           (((coords.y - 20) < y) && ((coords.y + 20) > y))
+          ){
+
+          dragID = station.getName();
+        }
+      }
+
+
+    }).on('mouseup', function(evt){
+      dragID = "";
     });
-  });
+});
 
 
