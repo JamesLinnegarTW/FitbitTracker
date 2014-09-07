@@ -1,0 +1,24 @@
+{
+  "name": "fitbit",
+  "version": "0.0.1",
+  "description": "ERROR: No README.md file found!",
+  "main": "server.js",
+  "dependencies": {
+    "socket.io": "~1.1.0",
+    "noble": "~0.3.4",
+    "request": "~2.40.0",
+    "mathjs": "~0.27.0",
+    "socket.io-client": "~1.1.0",
+    "node-static": "~0.7.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "subdomain": "jlinnega-fireworks",
+  "engines": {
+    "node": "0.10.x"
+  }
+}
