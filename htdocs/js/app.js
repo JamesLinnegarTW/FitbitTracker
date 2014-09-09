@@ -128,11 +128,11 @@ $(function(){
 
       for(var i = 0; i < deviceKeys.length; i++){
 				var device = devices[deviceKeys[i]];
-      	if((now - device.lastSeen) > 60000) {
+      	if((now - device.lastSeen) > 300000) {
       		delete devices[deviceKeys[i]];
       	} else {
   	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
-		      tmpCtx.fillText(device.name + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
+		      tmpCtx.fillText(device.name  + " " + device.uuid + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
       	}
       }
 
@@ -153,15 +153,32 @@ $(function(){
 
     requestAnimationFrame(draw, canvas);
 
+    function moving(evt){
+      evt.preventDefault();
+      if(evt.touches){
+        var x = evt.touches[0].clientX;
+        var y = evt.touches[0].clientY;
+      } else {
+        var x = evt.clientX;
+        var y = evt.clientY;
+      }
 
-
-
-    $('#canvas').on('mousemove', function(evt){
       if(dragID && stations[dragID])
-        stations[dragID].setCoords(evt.clientX - 10, evt.clientY - 10);
-    }).on('mousedown', function(evt){
-      var x = evt.clientX;
-      var y = evt.clientY;
+        stations[dragID].setCoords(x - 10, y - 10);
+
+      return false;
+    }
+
+    function startMove(evt){
+      evt.preventDefault();
+      particles = [];
+      if(evt.touches){
+        var x = evt.touches[0].clientX;
+        var y = evt.touches[0].clientY;
+      } else {
+        var x = evt.clientX;
+        var y = evt.clientY;
+      }
 
       var stationKeys = Object.keys(stations);
 
@@ -177,10 +194,22 @@ $(function(){
         }
       }
 
-
-    }).on('mouseup', function(evt){
+      //evt.preventDefaut();
+      return false;
+    }
+    function moveEnd(){
       dragID = "";
-    });
+    }
+
+    document.addEventListener("mousedown", startMove);
+    document.addEventListener("mousemove", moving);
+    document.addEventListener("mouseup", moveEnd);
+
+    document.addEventListener("touchstart", startMove);
+    document.addEventListener("touchmove", moving);
+    document.addEventListener("touchend", moveEnd);
+
+
 });
 
 

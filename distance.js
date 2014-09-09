@@ -57,11 +57,17 @@ noble.on('discover', function(peripheral) {
     device.uuid = peripheral.uuid;
     device.distance = distanceMagic(peripheral.rssi);
     device.station = stationName;
-
+    //device.rssi = peripheral.rssi;
+    //device.time = new Date();
+    console.log(device);
     function distanceMagic(rssi){
       var distance = d1 * Math.pow(10, (r1 - rssi) / (10 * n)); //float
       return distance;
     }
+
+    peripheral.updateRssi(function(rssi){
+      console.log('rssi ', rssi);
+    })
 
     sendToAll(device);
 });

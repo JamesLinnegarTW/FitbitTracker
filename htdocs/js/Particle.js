@@ -6,7 +6,7 @@ function Particle(x, y, particleSize, color) {
 
   var radius = particleSize;
 
-  var life = 50;
+  var life = 100;
   var remaining_life = life;
 
   this.r = color.r;
@@ -14,7 +14,7 @@ function Particle(x, y, particleSize, color) {
   this.b = color.b;
 
   this.draw = function(ctx){
-    var delta = (new Date() - (startTime || new Date())) / 50;
+    var delta = (new Date() - (startTime || new Date())) / 100;
 
     ctx.beginPath();
     opacity = Math.round(remaining_life/life*100)/80
