@@ -1,0 +1,68 @@
+<canvas id="canvas" width=300 height=300></canvas>
+<style>
+        body {
+            background-color: white;
+        }
+        canvas {
+            border:1px solid red;
+        }
+        </style>
+        <script>
+
+                var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "white";
+        ctx.strokeStyle = "orange";
+        ctx.lineWidth = 1;
+
+        var circle1 = {
+            x: 100,
+            y: 100,
+            r: 50
+        };
+        var circle2 = {
+            x: 140,
+            y: 100,
+            r: 50
+        };
+
+
+        // draw circle1
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(circle1.x, circle1.y, circle1.r, 0, 2 * Math.PI, false);
+        ctx.fill();
+     //   ctx.stroke();
+
+        // composite mode "source-atop" to draw the intersection
+        ctx.beginPath();
+        ctx.fillStyle = "orange";
+        ctx.globalCompositeOperation = "source-atop";
+        ctx.arc(circle2.x, circle2.y, circle2.r, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.restore();
+
+/*
+        // destination-over to draw fill for circle2 again
+        ctx.beginPath();
+        ctx.globalCompositeOperation = "destination-over";
+        ctx.arc(circle2.x, circle2.y, circle2.r, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.stroke();
+        // back to normal composite mode (newest drawings on top)
+        ctx.globalCompositeOperation = "source-over";
+*/
+/*
+        // draw the stroke for circle1 again
+        ctx.beginPath();
+        ctx.arc(circle1.x, circle1.y, circle1.r, 0, 2 * Math.PI, false);
+        ctx.stroke();
+
+        // draw the stroke for circle2 again
+        ctx.beginPath();
+        ctx.arc(circle2.x, circle2.y, circle2.r, 0, 2 * Math.PI, false);
+        ctx.stroke();
+*/
+
+        </script>

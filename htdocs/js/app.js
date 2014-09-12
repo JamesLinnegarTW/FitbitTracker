@@ -7,16 +7,17 @@ $(function(){
     var stations = {};
     var stations = [];
     var dragID;
-		var   W = window.innerWidth - 20,
-		   		H = window.innerHeight - 20;
+		var   W = 1000,
+		   		H = 800;
 
 		var particles = [];
 
 		var devices = {};
 
 
-    canvas.width = W;
-    canvas.height = H;
+
+    canvas.width = 1000;
+    canvas.height = 1000;
 
 
     var socket = io.connect('http://'+window.location.hostname+'/');
@@ -30,7 +31,7 @@ $(function(){
     socket.on('connect', function () {
 
     	socket.on('new_station', function(data){
-    		stations[data.n] = new Station(data.n, W/2,H/2);
+    		stations[data.n] = new Station(data.n, 50,50);
     	});
 
     	socket.on('remove_station', function(data){
@@ -41,6 +42,7 @@ $(function(){
       	var stationID = data.station;
 
         if(!devices[data.uuid]){
+
         	devices[data.uuid] = data;
         	devices[data.uuid].color = randomColor();
         	devices[data.uuid].distanceAverages = [];
@@ -73,27 +75,20 @@ $(function(){
 	         }
 					devices[data.uuid].avDistance = average;
           */
-					var scale = (data.distance / 20 ) * (H/2);
+					var scale = (data.distance / 100 ) * 1000;
 					//var averageScale = (average / 20) * (H/2);
 					if(stations[stationID]) {
 						var coords = stations[stationID].getCoords();
+            console.log(coords);
   	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
     			} else {
-    				stations[stationID] = new Station(stationID, W/2,H/2);
+    				stations[stationID] = new Station(stationID, 50,20);
 
     			}
         }
       });
 
     });
-
-
-   window.onresize = function(){
-	   W = window.innerWidth;
-	   H = window.innerHeight;
-		 canvas.width = W;
-	   canvas.height = H;
-   };
 
 
     function resetCanvas(rCtx){
@@ -141,7 +136,7 @@ $(function(){
 
       for(var i = 0; i < stationKeys.length; i++){
 				var station = stations[stationKeys[i]];
-      	station.draw(tmpCtx, H/4);
+      	station.draw(tmpCtx, (20/ 100) * 1000);
       }
 
       ctx.drawImage(tmpCanvas, 0, 0);
@@ -154,30 +149,39 @@ $(function(){
     requestAnimationFrame(draw, canvas);
 
     function moving(evt){
+                var offsetY = $('#canvas').offset().top;
+
+     var offsetX = $('#canvas').offset().left;
       evt.preventDefault();
       if(evt.touches){
-        var x = evt.touches[0].clientX;
-        var y = evt.touches[0].clientY;
+        var x = evt.touches[0].clientX- offsetX;
+        var y = evt.touches[0].clientY- offsetY;
       } else {
-        var x = evt.clientX;
-        var y = evt.clientY;
+        var x = evt.clientX- offsetX;
+        var y = evt.clientY- offsetY;
       }
 
-      if(dragID && stations[dragID])
-        stations[dragID].setCoords(x - 10, y - 10);
+      if(dragID && stations[dragID]){
+        stations[dragID].setCoords((x / 1000) * 100, (y / 1000) * 100);
+        particles = [];
+      }
 
       return false;
     }
 
     function startMove(evt){
+
+      var offsetY = $('#canvas').offset().top;
+      var offsetX = $('#canvas').offset().left;
+
       evt.preventDefault();
-      particles = [];
+     // particles = [];
       if(evt.touches){
-        var x = evt.touches[0].clientX;
-        var y = evt.touches[0].clientY;
+        var x = ((evt.touches[0].clientX - offsetX)/1000) * 100;
+        var y = ((evt.touches[0].clientY - offsetY)/1000) * 100;
       } else {
-        var x = evt.clientX;
-        var y = evt.clientY;
+        var x = ((evt.clientX- offsetX) / 1000) * 100;
+        var y = ((evt.clientY- offsetY) / 1000) * 100;
       }
 
       var stationKeys = Object.keys(stations);
@@ -186,8 +190,8 @@ $(function(){
         var station = stations[stationKeys[i]];
         var coords = station.getCoords();
 
-        if((((coords.x - 20) < x) && ((coords.x + 20) > x)) &&
-           (((coords.y - 20) < y) && ((coords.y + 20) > y))
+        if((((coords.x - 5) < x) && ((coords.x + 5) > x)) &&
+           (((coords.y - 5) < y) && ((coords.y + 5) > y))
           ){
 
           dragID = station.getName();

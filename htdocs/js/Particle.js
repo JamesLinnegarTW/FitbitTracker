@@ -2,7 +2,7 @@ function Particle(x, y, particleSize, color) {
 
   var startTime = new Date();
 
-  var location = {x: x, y: y};
+  var location = {x: (x/100) * 1000, y: (y/100) * 1000};
 
   var radius = particleSize;
 
@@ -18,14 +18,8 @@ function Particle(x, y, particleSize, color) {
 
     ctx.beginPath();
     opacity = Math.round(remaining_life/life*100)/80
-
-    var gradient = ctx.createRadialGradient(location.x, location.y, 0, location.x, location.y, radius);
-    gradient.addColorStop(0, "rgba("+this.r+", "+this.g+", "+this.b+", "+opacity+")");
-    gradient.addColorStop(0.5, "rgba("+this.r+", "+this.g+", "+this.b+", "+opacity+")");
-    gradient.addColorStop(1, "rgba("+this.r+", "+this.g+", "+this.b+", 0)");
-
-    ctx.fillStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")"; //gradient;
-		ctx.strokeStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")"; //gradient;
+    ctx.fillStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")";
+		ctx.strokeStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")";
     ctx.lineWidth=3;
     ctx.arc(location.x, location.y, radius, Math.PI*2, false);
     ctx.stroke();
