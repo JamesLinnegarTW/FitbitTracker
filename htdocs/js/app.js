@@ -50,23 +50,23 @@ $(function(){
       socket.on('ble_data', function(data){
       	var stationID = data.station;
 
-        if(!devices[data.uuid]){
+        if(!devices[data.name]){
 
-        	devices[data.uuid] = data;
-        	devices[data.uuid].color = randomColor();
-        	devices[data.uuid].distanceAverages = [];
-        	devices[data.uuid].avIndex = 0;
-        	devices[data.uuid].avDistance = 0;
+        	devices[data.name] = data;
+        	devices[data.name].color = randomColor();
+        	devices[data.name].distanceAverages = [];
+        	devices[data.name].avIndex = 0;
+        	devices[data.name].avDistance = 0;
         } else {
-        	devices[data.uuid].distance = data.distance;
-        	var avIndex = devices[data.uuid].avIndex;
+        	devices[data.name].distance = data.distance;
+        	var avIndex = devices[data.name].avIndex;
         	avIndex = avIndex + 1;
         	if(avIndex > 5) avIndex = 0;
-        	devices[data.uuid].distanceAverages[avIndex] = {d: data.distance, t: new Date()};
-        	devices[data.uuid].avIndex = avIndex;
+        	devices[data.name].distanceAverages[avIndex] = {d: data.distance, t: new Date()};
+        	devices[data.name].avIndex = avIndex;
 
         }
-        devices[data.uuid].lastSeen = new Date();
+        devices[data.name].lastSeen = new Date();
 
         if(data.distance <= 25){
 /*
@@ -89,7 +89,7 @@ $(function(){
 					if(stations[stationID]) {
 						var coords = stations[stationID].getCoords();
             console.log(coords);
-  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
+  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.name].color));
     			} else {
     				stations[stationID] = new Station(stationID, 50,20);
 
@@ -136,7 +136,7 @@ $(function(){
       		delete devices[deviceKeys[i]];
       	} else {
   	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
-		      tmpCtx.fillText(device.name  + " " + device.uuid + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
+		      tmpCtx.fillText(device.name  + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
       	}
       }
 
