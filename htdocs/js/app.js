@@ -7,17 +7,26 @@ $(function(){
     var stations = {};
     var stations = [];
     var dragID;
-		var   W = 1000,
-		   		H = 800;
+
+    var   W = window.innerWidth ,
+          H = window.innerHeight;
+
+
+    canvas.width = W;
+    canvas.height = H;
+
+
+   window.onresize = function(){
+     W = window.innerWidth;
+     H = window.innerHeight;
+     canvas.width = W;
+     canvas.height = H;
+   };
+
 
 		var particles = [];
 
 		var devices = {};
-
-
-
-    canvas.width = 1000;
-    canvas.height = 1000;
 
 
     var socket = io.connect('http://'+window.location.hostname+'/');
