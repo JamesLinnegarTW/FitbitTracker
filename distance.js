@@ -69,7 +69,9 @@ noble.on('discover', function(peripheral) {
       console.log('rssi ', rssi);
     })
 
-    sendToAll(device);
+    if(typeof(localName) != 'undefined'){
+	    sendToAll(device);
+	}
 });
 
 function sendToAll(data){
