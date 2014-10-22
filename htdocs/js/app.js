@@ -69,7 +69,7 @@ $(function(){
         devices[data.name].lastSeen = new Date();
 
         if(data.distance <= 25){
-/*
+
           var total = 0;
           for(var i = 0; i < devices[data.uuid].distanceAverages.length; i++){
           	console.log(devices[data.uuid].distanceAverages[i]);
@@ -83,13 +83,12 @@ $(function(){
 	         	average = 0;
 	         }
 					devices[data.uuid].avDistance = average;
-          */
+          
 					var scale = (data.distance / 100 ) * 1000;
-					//var averageScale = (average / 20) * (H/2);
+					var averageScale = (average / 100) * 1000;
 					if(stations[stationID]) {
 						var coords = stations[stationID].getCoords();
-            console.log(coords);
-  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.name].color));
+  	        particles.push(new Particle(coords.x, coords.y, averageScale, devices[data.name].color));
     			} else {
     				stations[stationID] = new Station(stationID, 50,20);
 
