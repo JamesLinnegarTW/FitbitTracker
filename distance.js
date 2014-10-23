@@ -1,13 +1,27 @@
 var noble = require('noble');
 var math = require('mathjs');
-var stationName = process.argv[3];
-var socket = require('socket.io-client')('http://' + process.argv[2] + ':8081');
-var x = process.argv[4];
-var y = process.argv[5];
+var stationName = process.argv[2];
+
+
+var mdns = require('mdns');
+var browser = mdns.createBrowser(mdns.tcp('fitbit'));
+
+browser.on('serviceUp', function(service){
+ start(service.addresses[0]);
+ browser.stop();
+});
+
+browser.on('serviceDown', function(service){
+  process.exit();
+});
+
+browser.start();
+
 
 var clients = [];
-console.log("Starting station " + stationName);
 var devices = [];
+
+
 var r1 = -55.0; //float
 var d1 = 1.5; //float
 
@@ -21,60 +35,66 @@ var d2 = 20.0; //float
 // n will be ~4 for a cluttered industrial site
 var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 
+function start(ip){
 
-socket.on('connect', function(){
-  socket.emit('new_station', {n:stationName,x:x,y:y});
-});
+  var socket = require('socket.io-client')('http://' + process.argv[2] + ':8081');
+
+  console.log("Starting station " + stationName);
+
+  socket.on('connect', function(){
+    socket.emit('new_station', {n:stationName,x:x,y:y});
+  });
 
 
-function exitHandler(options, err) {
-    console.log('exiting');
-    socket.emit('remove_station', {n:stationName});
-    process.exit();
-}
-
-process.on('exit', exitHandler.bind(null,{cleanup:true}));
-
-noble.on('stateChange', function(state) {
-  if (state === 'poweredOn') {
-    noble.startScanning([],true);
-  } else {
-    noble.stopScanning();
+  function exitHandler(options, err) {
+      console.log('exiting');
+      socket.emit('remove_station', {n:stationName});
+      console.log({n:stationName});
+      process.exit();
   }
-});
 
+  process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
-noble.on('discover', function(peripheral) {
-
-    var advertisement = peripheral.advertisement;
-
-    var localName = advertisement.localName;
-    var txPowerLevel = advertisement.txPowerLevel;
-
-    var device = {};
-
-    device.name = localName;
-    device.uuid = peripheral.uuid;
-    device.distance = distanceMagic(peripheral.rssi);
-    device.station = stationName;
-    //device.rssi = peripheral.rssi;
-    //device.time = new Date();
-    console.log(device);
-    function distanceMagic(rssi){
-      var distance = d1 * Math.pow(10, (r1 - rssi) / (10 * n)); //float
-      return distance;
+  noble.on('stateChange', function(state) {
+    if (state === 'poweredOn') {
+      noble.startScanning([],true);
+      console.log('start');
+    } else {
+      noble.stopScanning();
+      console.log('stop');
     }
+  });
 
-    peripheral.updateRssi(function(rssi){
-      console.log('rssi ', rssi);
-    })
 
-    if(typeof(localName) != 'undefined'){
-	    sendToAll(device);
-	}
-});
+  function distanceMagic(rssi){
+    var distance = d1 * Math.pow(10, (r1 - rssi) / (10 * n)); //float
+    return distance;
+  }
 
-function sendToAll(data){
-  socket.emit('d_data', data);
+
+  noble.on('discover', function(peripheral) {
+    var advertisement = peripheral.advertisement;
+    console.log(advertisement);
+    if(advertisement.localName){
+
+      var localName = advertisement.localName;
+      var txPowerLevel = advertisement.txPowerLevel;
+
+      var device = {};
+
+      device.name =     localName;
+      device.uuid =     peripheral.uuid;
+      device.distance = distanceMagic(peripheral.rssi);
+      device.station =  stationName;
+      device.rssi =     peripheral.rssi;
+      device.time = new Date();
+
+      sendToServer(device);
+    }
+  });
+
+  function sendToServer(data){
+    console.log(data);
+    socket.emit('d_data', data);
+  }
 }
-

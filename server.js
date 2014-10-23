@@ -6,6 +6,12 @@ var http = require('http').createServer(function (request, response) {
     }).resume();
 }).listen(8081);
 
+
+var mdns = require('mdns');
+
+var ad = mdns.createAdvertisement(mdns.tcp('fitbit'),8081);
+ad.start();
+
 var io = require('socket.io').listen(http);
 io.sockets.on('connection', function(socket){
 	console.log('client');
