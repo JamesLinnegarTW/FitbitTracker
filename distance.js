@@ -1,7 +1,7 @@
 var noble = require('noble');
 var math = require('mathjs');
-var stationName = process.argv[2];
-
+var os = require('os');
+var stationName = os.hostname();
 
 var mdns = require('mdns');
 var browser = mdns.createBrowser(mdns.tcp('fitbit'));
@@ -12,7 +12,7 @@ browser.on('serviceUp', function(service){
 });
 
 browser.on('serviceDown', function(service){
-  process.exit();
+//  process.exit();
 });
 
 browser.start();
@@ -36,24 +36,24 @@ var d2 = 20.0; //float
 var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 
 function start(ip){
-
-  var socket = require('socket.io-client')('http://' + process.argv[2] + ':8081');
+console.log(ip);
+  var socket = require('socket.io-client')('http://' + ip + ':8081');
 
   console.log("Starting station " + stationName);
 
   socket.on('connect', function(){
-    socket.emit('new_station', {n:stationName,x:x,y:y});
+    socket.emit('new_station', {n:stationName});
   });
 
 
   function exitHandler(options, err) {
-      console.log('exiting');
-      socket.emit('remove_station', {n:stationName});
-      console.log({n:stationName});
-      process.exit();
+  //    console.log('exiting');
+  //    socket.emit('remove_station', {n:stationName});
+ //     console.log({n:stationName});
+//      process.exit();
   }
 
-  process.on('exit', exitHandler.bind(null,{cleanup:true}));
+//  process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
   noble.on('stateChange', function(state) {
     if (state === 'poweredOn') {
@@ -97,4 +97,5 @@ function start(ip){
     console.log(data);
     socket.emit('d_data', data);
   }
+    noble.startScanning([],true);
 }
