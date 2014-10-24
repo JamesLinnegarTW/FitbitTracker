@@ -5,14 +5,14 @@ var stationName = os.hostname();
 
 var mdns = require('mdns');
 var browser = mdns.createBrowser(mdns.tcp('fitbit'));
-
+var devices = {};
 browser.on('serviceUp', function(service){
  start(service.addresses[0]);
- browser.stop();
+// browser.stop();
 });
 
 browser.on('serviceDown', function(service){
-//  process.exit();
+  process.exit();
 });
 
 browser.start();
@@ -36,7 +36,6 @@ var d2 = 20.0; //float
 var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 
 function start(ip){
-console.log(ip);
   var socket = require('socket.io-client')('http://' + ip + ':8081');
 
   console.log("Starting station " + stationName);
@@ -47,13 +46,13 @@ console.log(ip);
 
 
   function exitHandler(options, err) {
-  //    console.log('exiting');
-  //    socket.emit('remove_station', {n:stationName});
- //     console.log({n:stationName});
-//      process.exit();
+    console.log('exiting');
+    socket.emit('remove_station', {n:stationName});
+    console.log({n:stationName});
+    setTimeout(function(){process.exit();},1000);
   }
 
-//  process.on('exit', exitHandler.bind(null,{cleanup:true}));
+  process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
   noble.on('stateChange', function(state) {
     if (state === 'poweredOn') {
@@ -74,7 +73,7 @@ console.log(ip);
 
   noble.on('discover', function(peripheral) {
     var advertisement = peripheral.advertisement;
-    console.log(advertisement);
+
     if(advertisement.localName){
 
       var localName = advertisement.localName;
@@ -88,6 +87,10 @@ console.log(ip);
       device.station =  stationName;
       device.rssi =     peripheral.rssi;
       device.time = new Date();
+
+      if(!devices[peripheral.uuid]){
+        devices[peripheral.uuid] = device;
+      }
 
       sendToServer(device);
     }
