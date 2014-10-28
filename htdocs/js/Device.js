@@ -2,7 +2,7 @@ function Device(locations, color) {
 
   var startTime = new Date();
 
-  var life = 100;
+  var life = 50;
   var remaining_life = life;
   var _locations = {};
 
@@ -16,10 +16,6 @@ function Device(locations, color) {
   };
 
   this.draw = function(ctx){
-   // var delta = (new Date() - (startTime || new Date())) / 100;
-
-
-
 
     ctx.beginPath();
     opacity = Math.round(remaining_life/life*100)/80
@@ -33,17 +29,5 @@ function Device(locations, color) {
       ctx.stroke();
       locations[i].radius = locations[i].radius + (0.1 * delta);
     }
-
-  //  remaining_life = remaining_life - (1 * delta);
-
-   // startTime = new Date();
-/*
-    if((remaining_life < 0) ) {
-      return false; //kill the particle
-    } else {
-      return true;
-    }
-
-    */
   };
 }

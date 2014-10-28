@@ -50,48 +50,23 @@ $(function(){
       socket.on('ble_data', function(data){
       	var stationID = data.station;
 
-        if(!devices[data.name]){
+        if(!devices[data.uuid]){
 
-        	devices[data.name] = data;
-        	devices[data.name].color = randomColor();
-        	devices[data.name].distanceAverages = [];
-        	devices[data.name].avIndex = 0;
-        	devices[data.name].avDistance = 0;
-        } else {
-        	devices[data.name].distance = data.distance;
-        	var avIndex = devices[data.name].avIndex;
-        	avIndex = avIndex + 1;
-        	if(avIndex > 5) avIndex = 0;
-        	devices[data.name].distanceAverages[avIndex] = {d: data.distance, t: new Date()};
-        	devices[data.name].avIndex = avIndex;
+        	devices[data.uuid] = data;
+        	devices[data.uuid].color = randomColor();
 
         }
-        devices[data.name].lastSeen = new Date();
+
+        devices[data.uuid].distance = data.distance;
+        devices[data.uuid].lastSeen = new Date();
 
         if(data.distance <= 25){
 
-         /* var total = 0;
-          for(var i = 0; i < devices[data.uuid].distanceAverages.length; i++){
-          	console.log(devices[data.uuid].distanceAverages[i]);
-            total = total + devices[data.uuid].distanceAverages[i].d;
-          }
-
-
-          var average;
-
-          if(total > 0) {
-	          average = total / devices[data.uuid].distanceAverages.length;
-	         } else {
-	         	average = 0;
-	         }
-
-          devices[data.uuid].avDistance = average;
-*/
 					var scale = (data.distance / 100 ) * 1000;
-	//				var averageScale = (average / 100) * 1000;
+
 					if(stations[stationID]) {
 						var coords = stations[stationID].getCoords();
-  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.name].color));
+  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
     			} else {
     				stations[stationID] = new Station(stationID, 50,20);
 
@@ -138,7 +113,7 @@ $(function(){
       		delete devices[deviceKeys[i]];
       	} else {
   	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
-		      tmpCtx.fillText(device.name  + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
+		      tmpCtx.fillText(device.name  + " " + device.uuid + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
       	}
       }
 
@@ -160,10 +135,10 @@ $(function(){
     requestAnimationFrame(draw, canvas);
 
     function moving(evt){
-                var offsetY = $('#canvas').offset().top;
-
-     var offsetX = $('#canvas').offset().left;
+      var offsetY = $('#canvas').offset().top;
+      var offsetX = $('#canvas').offset().left;
       evt.preventDefault();
+
       if(evt.touches){
         var x = evt.touches[0].clientX- offsetX;
         var y = evt.touches[0].clientY- offsetY;
@@ -179,6 +154,7 @@ $(function(){
 
       return false;
     }
+
 
     function startMove(evt){
 
@@ -212,6 +188,7 @@ $(function(){
       //evt.preventDefaut();
       return false;
     }
+
     function moveEnd(){
       dragID = "";
     }
@@ -223,7 +200,6 @@ $(function(){
     document.addEventListener("touchstart", startMove);
     document.addEventListener("touchmove", moving);
     document.addEventListener("touchend", moveEnd);
-
 
 });
 

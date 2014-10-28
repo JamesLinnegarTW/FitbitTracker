@@ -1,26 +1,41 @@
 var noble = require('noble');
 var math = require('mathjs');
 var os = require('os');
+var fs = require('fs');
+var mdns = require('mdns');
+
 var stationName = os.hostname();
 
-var mdns = require('mdns');
 var browser = mdns.createBrowser(mdns.tcp('fitbit'));
 var devices = {};
+
+
+fs.readFile('/boot/device', 'utf8', function (err,data) {
+  if (err) {
+    return console.log(err);
+  }
+  stationName = data;
+});
+
+
 browser.on('serviceUp', function(service){
+ clearTimeout(searchTimeout);
  start(service.addresses[0]);
-// browser.stop();
 });
 
 browser.on('serviceDown', function(service){
-  process.exit();
+
 });
 
 browser.start();
 
+var searchTimeout = setTimeout(function(){
+  browser.stop();
+  start('localhost');
+},10000);
 
 var clients = [];
 var devices = [];
-
 
 var r1 = -55.0; //float
 var d1 = 1.5; //float
