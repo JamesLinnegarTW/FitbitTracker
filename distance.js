@@ -8,7 +8,8 @@ var stationName = os.hostname();
 
 var browser = mdns.createBrowser(mdns.tcp('fitbit'));
 var devices = {};
-
+var x = 50;
+var y = 50;
 
 fs.readFile('/boot/device', 'utf8', function (err,data) {
   if (err) {
@@ -19,7 +20,6 @@ fs.readFile('/boot/device', 'utf8', function (err,data) {
 
 
 browser.on('serviceUp', function(service){
- clearTimeout(searchTimeout);
  start(service.addresses[0]);
 });
 
@@ -29,18 +29,12 @@ browser.on('serviceDown', function(service){
 
 browser.start();
 
-var searchTimeout = setTimeout(function(){
-  browser.stop();
-  start('localhost');
-},10000);
-
 var clients = [];
 var devices = [];
 
 var r1 = -55.0; //float
 var d1 = 1.5; //float
 
-// sample #2 from environment (rssi -75dBm = distance 20ft)
 var r2 = -90.0; //float
 var d2 = 20.0; //float
 
@@ -88,28 +82,26 @@ function start(ip){
 
   noble.on('discover', function(peripheral) {
     var advertisement = peripheral.advertisement;
+    var localName = advertisement.localName;
+    var txPowerLevel = advertisement.txPowerLevel;
 
-    if(advertisement.localName){
+    var device = {};
 
-      var localName = advertisement.localName;
-      var txPowerLevel = advertisement.txPowerLevel;
+    device.name =     localName;
+    device.uuid =     peripheral.uuid;
+    device.distance = distanceMagic(peripheral.rssi);
+    device.station =  stationName;
+    device.rssi =     peripheral.rssi;
+    device.time = new Date();
 
-      var device = {};
-
-      device.name =     localName;
-      device.uuid =     peripheral.uuid;
-      device.distance = distanceMagic(peripheral.rssi);
-      device.station =  stationName;
-      device.rssi =     peripheral.rssi;
-      device.time = new Date();
-
-      if(!devices[peripheral.uuid]){
-        devices[peripheral.uuid] = device;
-      }
-
-      sendToServer(device);
+    if(!devices[peripheral.uuid]){
+      devices[peripheral.uuid] = device;
     }
+
+    sendToServer(device);
   });
+
+
 
   function sendToServer(data){
     console.log(data);

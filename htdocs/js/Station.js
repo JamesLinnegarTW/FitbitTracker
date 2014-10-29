@@ -1,8 +1,9 @@
-function Station(name, x, y){
+function Station(name, x, y, socket){
 
 	var _name = name;
 	var _x = x;
 	var _y = y;
+	var _socket = socket;
 
 	this.getName = function(){
 		return _name;
@@ -16,6 +17,8 @@ function Station(name, x, y){
 	this.setCoords = function(x,y){
 		_x = x;
 		_y = y;
+
+		socket.emit('setCoords', {x:_x,y:_y});
 	}
 
 

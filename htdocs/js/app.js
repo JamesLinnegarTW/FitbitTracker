@@ -7,6 +7,7 @@ $(function(){
     var stations = {};
     var stations = [];
     var dragID;
+    var scale = 1000;
 
     var   W = window.innerWidth ,
           H = window.innerHeight;
@@ -21,6 +22,9 @@ $(function(){
      H = window.innerHeight;
      canvas.width = W;
      canvas.height = H;
+     document.getElementById('container').style.height = H +'px';
+     document.getElementById('container').style.width = W + 'px';
+
    };
 
 
@@ -40,7 +44,8 @@ $(function(){
     socket.on('connect', function () {
 
     	socket.on('new_station', function(data){
-    		stations[data.n] = new Station(data.n, 50,50);
+    		stations[data.n] = new Station(data.n, 50,50, socket);
+
     	});
 
     	socket.on('remove_station', function(data){
@@ -60,18 +65,17 @@ $(function(){
         devices[data.uuid].distance = data.distance;
         devices[data.uuid].lastSeen = new Date();
 
-        if(data.distance <= 25){
 
-					var scale = (data.distance / 100 ) * 1000;
 
-					if(stations[stationID]) {
-						var coords = stations[stationID].getCoords();
-  	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
-    			} else {
-    				stations[stationID] = new Station(stationID, 50,20);
+				var scale = (data.distance / 100 ) * 1000;
 
-    			}
-        }
+				if(stations[stationID]) {
+					var coords = stations[stationID].getCoords();
+	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
+  			} else {
+  				stations[stationID] = new Station(stationID, 50,20);
+  			}
+
       });
 
     });
@@ -133,6 +137,8 @@ $(function(){
 
 
     requestAnimationFrame(draw, canvas);
+
+
 
     function moving(evt){
       var offsetY = $('#canvas').offset().top;

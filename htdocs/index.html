@@ -12,11 +12,30 @@
       margin: 0px;
     }
 
+    #container {
+      width: 800px;
+      height: 20px;
+      position: relative;
+      perspective: 800px;
+    }
+
+    #canvas {
+      width: 800px;
+      height: 200px;
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+
+      transform: rotateX( 70deg );
+
+    }
+
     </style>
 </head>
 <body>
+<div id="container">
   <canvas id="canvas"></canvas>
-
+</div>
   <script src='/js/jquery.min.js'></script>
   <script src='/socket.io/socket.io.js'></script>
   <script src='/js/animation-frame.js'></script>
