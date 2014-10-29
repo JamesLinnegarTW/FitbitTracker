@@ -12,13 +12,8 @@ function Device(name, uuid, color) {
         stationData[station] = new CircularBuffer(10);
       }
 
-      stationData[station].add(distance);
+      stationData[station].add({d:distance, t: new Date()});
   };
-
-
-  function getDistance(station){
-    return 50;
-  }
 
   function average(arr){
     return _.reduce(arr, function(memo, num){
@@ -28,13 +23,18 @@ function Device(name, uuid, color) {
 
   this.getData = function(){
       var d = [];
-      var stationKeys = Object.keys(stationData);
 
-      for(var i = 0; i < stationKeys.length; i++){
-        var key = stationKeys[i];
-        var positionData = stationData[key].getData();
-        var a = average(positionData);
-        d.push({s:key, d:a});
+      for(station in stationData){
+
+        var positionData = stationData[station].getData();
+
+        var currentTime = new Date();
+        var last5Seconds = _.filter(positionData, function(positionObject){ return ((currentTime - positionObject.t) < 5000); });
+        var distances = _.pluck(last5Seconds,'d');
+
+        var a = average(distances);
+
+        d.push({s:station, d:a});
       }
 
       return d;

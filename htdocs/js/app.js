@@ -30,9 +30,6 @@ $(function(){
 
    };
 
-
-
-
     var socket = io.connect('http://'+window.location.hostname+'/');
 
 		function randomColor(){
@@ -56,7 +53,7 @@ $(function(){
 
       	var stationID = data.station;
 
-        if(data.name){
+      //  if(data.name){
           if(!devices[data.uuid]){
           	devices[data.uuid]  = new Device(data.name, data.uuid, randomColor());
           }
@@ -68,7 +65,7 @@ $(function(){
   				if(!stations[stationID]) {
     				stations[stationID] = new Station(stationID, 50,20);
     			}
-        }
+       // }
 
       });
 
@@ -90,8 +87,6 @@ $(function(){
 
       resetCanvas(tmpCtx);
 
-
-
      if(particles.length > 0){
 
        for(var i = 0; i < particles.length; i++) {
@@ -104,23 +99,20 @@ $(function(){
 
 
       tmpCtx.font = "15px Georgia";
-      tmpCtx.fillStyle = "white";
-
-
-      var deviceKeys = Object.keys(devices);
 
 
       var drawDevices = ((new Date() - lastUpdate) > 1000);
+      var listHeight = -1;
 
-      for(var i = 0; i < deviceKeys.length; i++){
-
-				var device = devices[deviceKeys[i]];
+      for(deviceKey in devices){
+        listHeight++
+				var device = devices[deviceKey];
 
         if((now - device.lastSeen) > 300000) {
       		delete devices[deviceKeys[i]];
       	} else {
   	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
-		      tmpCtx.fillText(device.name  + " " + device.uuid, 10, 30 + (i * 20));
+		      tmpCtx.fillText(device.name, 10, 30 + (listHeight * 30));
         }
 
         if(drawDevices){
@@ -141,11 +133,8 @@ $(function(){
         lastUpdate = new Date();
       }
 
-     	var stationKeys = Object.keys(stations);
-
-      for(var i = 0; i < stationKeys.length; i++){
-				var station = stations[stationKeys[i]];
-      	station.draw(tmpCtx, (20/ 100) * 1000);
+      for(station in stations){
+      	stations[station].draw(tmpCtx, (20/ 100) * 1000);
       }
 
       ctx.drawImage(tmpCanvas, 0, 0);
@@ -187,7 +176,7 @@ $(function(){
       var offsetX = $('#canvas').offset().left;
 
       evt.preventDefault();
-     // particles = [];
+
       if(evt.touches){
         var x = ((evt.touches[0].clientX - offsetX)/1000) * 100;
         var y = ((evt.touches[0].clientY - offsetY)/1000) * 100;
@@ -196,21 +185,20 @@ $(function(){
         var y = ((evt.clientY- offsetY) / 1000) * 100;
       }
 
-      var stationKeys = Object.keys(stations);
 
-      for(var i = 0; i < stationKeys.length; i++){
-        var station = stations[stationKeys[i]];
-        var coords = station.getCoords();
+
+      for(station in stations){
+
+        var coords = stations[station].getCoords();
 
         if((((coords.x - 5) < x) && ((coords.x + 5) > x)) &&
            (((coords.y - 5) < y) && ((coords.y + 5) > y))
           ){
 
-          dragID = station.getName();
+          dragID = stations[station].getName();
         }
       }
 
-      //evt.preventDefaut();
       return false;
     }
 
