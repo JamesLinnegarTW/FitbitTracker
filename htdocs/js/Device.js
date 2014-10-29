@@ -1,33 +1,42 @@
-function Device(locations, color) {
+function Device(name, uuid, color) {
+  var stationData = {};
+  this.name = name;
 
-  var startTime = new Date();
+  this.uuid = uuid;
 
-  var life = 50;
-  var remaining_life = life;
-  var _locations = {};
-
-  this.r = color.r;
-  this.g = color.g;
-  this.b = color.b;
+  this.color = color;
 
 
-  this.setLocation = function(station, distance){
-    _locations[station] = distance;
+  this.updateData = function(station, distance){
+      if(!stationData[station]){
+        stationData[station] = new CircularBuffer(10);
+      }
+
+      stationData[station].add(distance);
   };
 
-  this.draw = function(ctx){
 
-    ctx.beginPath();
-    opacity = Math.round(remaining_life/life*100)/80
-		ctx.strokeStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")";
-    ctx.lineWidth=3;
+  function getDistance(station){
+    return 50;
+  }
 
-    var locationKeys = Object.keys(_locations);
+  function average(arr){
+    return _.reduce(arr, function(memo, num){
+      return memo + num;
+    },0) / arr.length;
+  }
 
-    for(var i = 0; i < locationKeys.length; i++){
-      ctx.arc(locations[i].x, locations[i].y, _locations[i].distance, Math.PI*2, false);
-      ctx.stroke();
-      locations[i].radius = locations[i].radius + (0.1 * delta);
-    }
+  this.getData = function(){
+      var d = [];
+      var stationKeys = Object.keys(stationData);
+
+      for(var i = 0; i < stationKeys.length; i++){
+        var key = stationKeys[i];
+        var positionData = stationData[key].getData();
+        var a = average(positionData);
+        d.push({s:key, d:a});
+      }
+
+      return d;
   };
 }

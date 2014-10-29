@@ -6,7 +6,7 @@ function Particle(x, y, particleSize, color) {
 
   var radius = particleSize;
 
-  var life = 100;
+  var life = 40;
   var remaining_life = life;
 
   this.r = color.r;
@@ -24,8 +24,8 @@ function Particle(x, y, particleSize, color) {
     ctx.arc(location.x, location.y, radius, Math.PI*2, false);
     ctx.stroke();
 
-    remaining_life = remaining_life - (1 * delta);
-    radius = radius + (0.1 * delta);
+    remaining_life = remaining_life - (1.5 * delta);
+    radius = radius + (0.4 * delta);
 
     startTime = new Date();
     if((remaining_life < 0 || radius < 0) ) {

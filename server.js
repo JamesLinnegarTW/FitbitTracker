@@ -5,7 +5,7 @@ var http = require('http').createServer(function (request, response) {
         file.serve(request, response);
     }).resume();
 }).listen(8081);
-
+var clients = [];
 
 var mdns = require('mdns');
 

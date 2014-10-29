@@ -17,8 +17,6 @@ function Station(name, x, y, socket){
 	this.setCoords = function(x,y){
 		_x = x;
 		_y = y;
-
-		socket.emit('setCoords', {x:_x,y:_y});
 	}
 
 
@@ -26,7 +24,7 @@ function Station(name, x, y, socket){
 			var centerX = (_x / 100 ) * 1000;
 			var centerY = (_y / 100 ) * 1000;
 
-      tmpCtx.strokeStyle = "rgba(255,255,255,0.1)";
+      tmpCtx.strokeStyle = "rgba(255,255,255,0.05)";
 			tmpCtx.fillStyle = "white";
 
 			tmpCtx.fillText(name, centerX - (tmpCtx.measureText(_name).width /2),  centerY + 5);

@@ -4,7 +4,7 @@ var os = require('os');
 var fs = require('fs');
 var mdns = require('mdns');
 
-var stationName = os.hostname();
+var stationName = 'me';
 
 var browser = mdns.createBrowser(mdns.tcp('fitbit'));
 var devices = {};
@@ -12,9 +12,7 @@ var x = 50;
 var y = 50;
 
 fs.readFile('/boot/device', 'utf8', function (err,data) {
-  if (err) {
-    return console.log(err);
-  }
+  if (err) return;
   stationName = data;
 });
 
@@ -92,7 +90,6 @@ function start(ip){
     device.distance = distanceMagic(peripheral.rssi);
     device.station =  stationName;
     device.rssi =     peripheral.rssi;
-    device.time = new Date();
 
     if(!devices[peripheral.uuid]){
       devices[peripheral.uuid] = device;

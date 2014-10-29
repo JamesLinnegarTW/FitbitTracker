@@ -4,8 +4,11 @@ $(function(){
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     var lastRender = new Date();
+    var lastUpdate = new Date();
     var stations = {};
-    var stations = [];
+    var devices = {};
+    var particles = [];
+
     var dragID;
     var scale = 1000;
 
@@ -28,9 +31,6 @@ $(function(){
    };
 
 
-		var particles = [];
-
-		var devices = {};
 
 
     var socket = io.connect('http://'+window.location.hostname+'/');
@@ -44,7 +44,7 @@ $(function(){
     socket.on('connect', function () {
 
     	socket.on('new_station', function(data){
-    		stations[data.n] = new Station(data.n, 50,50, socket);
+    		stations[data.n] = new Station(data.n, 50,50);
 
     	});
 
@@ -53,28 +53,22 @@ $(function(){
     	});
 
       socket.on('ble_data', function(data){
+
       	var stationID = data.station;
 
-        if(!devices[data.uuid]){
+        if(data.name){
+          if(!devices[data.uuid]){
+          	devices[data.uuid]  = new Device(data.name, data.uuid, randomColor());
+          }
 
-        	devices[data.uuid] = data;
-        	devices[data.uuid].color = randomColor();
+          devices[data.uuid].updateData(stationID, data.distance);
 
+  				var scale = (data.distance / 100 ) * 1000;
+
+  				if(!stations[stationID]) {
+    				stations[stationID] = new Station(stationID, 50,20);
+    			}
         }
-
-        devices[data.uuid].distance = data.distance;
-        devices[data.uuid].lastSeen = new Date();
-
-
-
-				var scale = (data.distance / 100 ) * 1000;
-
-				if(stations[stationID]) {
-					var coords = stations[stationID].getCoords();
-	        particles.push(new Particle(coords.x, coords.y, scale, devices[data.uuid].color));
-  			} else {
-  				stations[stationID] = new Station(stationID, 50,20);
-  			}
 
       });
 
@@ -96,31 +90,56 @@ $(function(){
 
       resetCanvas(tmpCtx);
 
-      if(particles.length > 0){
 
-        for(var i = 0; i < particles.length; i++) {
-          if(!particles[i].draw(tmpCtx)){
-            particles.splice(i,1);
-            i--;
-          }
-        }
-      }
+
+     if(particles.length > 0){
+
+       for(var i = 0; i < particles.length; i++) {
+         if(!particles[i].draw(tmpCtx)){
+           particles.splice(i,1);
+           i--;
+         }
+       }
+     }
+
 
       tmpCtx.font = "15px Georgia";
       tmpCtx.fillStyle = "white";
 
+
       var deviceKeys = Object.keys(devices);
 
+
+      var drawDevices = ((new Date() - lastUpdate) > 1000);
+
       for(var i = 0; i < deviceKeys.length; i++){
+
 				var device = devices[deviceKeys[i]];
-      	if((now - device.lastSeen) > 300000) {
+
+        if((now - device.lastSeen) > 300000) {
       		delete devices[deviceKeys[i]];
       	} else {
   	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
-		      tmpCtx.fillText(device.name  + " " + device.uuid + " " + device.distance.toFixed(2), 10, 30 + (i * 20));
-      	}
+		      tmpCtx.fillText(device.name  + " " + device.uuid, 10, 30 + (i * 20));
+        }
+
+        if(drawDevices){
+          var data = device.getData();
+
+          for(var d = 0; d < data.length; d++){
+            var scale = (data[d].d / 100 ) * 1000;
+            var station = stations[data[d].s];
+            if(station) {
+              var coords = station.getCoords();
+              particles.push(new Particle(coords.x, coords.y, scale, device.color));
+            }
+          }
+       }
       }
 
+      if(drawDevices) {
+        lastUpdate = new Date();
+      }
 
      	var stationKeys = Object.keys(stations);
 
