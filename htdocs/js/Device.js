@@ -12,10 +12,11 @@ function Device(name, uuid, color) {
 
   this.mute = function(){
     active = false;
-  }
+  };
+
   this.highlight = function(){
     active = true;
-  }
+  };
 
   this.isActive = function(){
     return active;

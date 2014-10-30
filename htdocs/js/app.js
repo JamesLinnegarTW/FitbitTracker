@@ -10,7 +10,6 @@ $(function(){
     var particles = [];
 
     var dragID;
-    var scale = 1000;
 
     var   W = window.innerWidth ,
           H = window.innerHeight;
@@ -39,7 +38,7 @@ $(function(){
 		}
 
     socket.on('connect', function () {
-
+      socket.emit('client',{});
     	socket.on('new_station', function(data){
     		stations[data.n] = new Station(data.n, 50,50);
 
@@ -55,7 +54,21 @@ $(function(){
 
 
           if(!devices[data.uuid]){
-          	devices[data.uuid]  = new Device(data.name, data.uuid, randomColor());
+            var color = randomColor();
+            if(knownUUIDs[data.uuid]){
+              data.name = knownUUIDs[data.uuid].name;
+              color = knownUUIDs[data.uuid].color;
+            }
+
+          	devices[data.uuid]  = new Device(data.name, data.uuid, color);
+          }
+
+          if(!devices[data.uuid].name && data.name){
+            if(knownUUIDs[data.uuid]){
+              data.name = knownUUIDs[data.uuid].name;
+            } else {
+              devices[data.uuid].name = data.name;
+            }
           }
 
           devices[data.uuid].updateData(stationID, data.distance);
@@ -104,15 +117,17 @@ $(function(){
       for(deviceKey in devices){
         listHeight++
 				var device = devices[deviceKey];
-        var startOpacity = device.isActive()?1:0.3;
-
-
+        var textOpacity = device.isActive()?1:0.3;
+        var startOpacity = device.isActive()?1:0.1;
 
         if((now - device.lastSeen) > 300000) {
       		delete devices[deviceKey];
       	} else {
-  	    	tmpCtx.fillStyle = "rgba(" + device.color.r + ","  + device.color.g + ","  + device.color.b + "," + startOpacity + ")";
-		      tmpCtx.fillText(device.name + " " + device.uuid, 30, 40 + (listHeight * 40));
+  	    	tmpCtx.fillStyle = "rgba(" + device.color.r + ","  + device.color.g + ","  + device.color.b + "," + textOpacity + ")";
+
+          tmpCtx.fillRect(10, 30 + (listHeight * 40), 10, 10);
+
+          tmpCtx.fillText(device.name + " (" + device.uuid +")", 30, 40 + (listHeight * 40));
         }
 
         if(drawDevices){
