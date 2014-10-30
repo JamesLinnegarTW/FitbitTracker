@@ -1,4 +1,4 @@
-function Particle(x, y, particleSize, color) {
+function Particle(x, y, particleSize, color, startOpacity) {
 
   var startTime = new Date();
 
@@ -6,7 +6,7 @@ function Particle(x, y, particleSize, color) {
 
   var radius = particleSize;
 
-  var life = 40;
+  var life = 50;
   var remaining_life = life;
 
   this.r = color.r;
@@ -17,7 +17,10 @@ function Particle(x, y, particleSize, color) {
     var delta = (new Date() - (startTime || new Date())) / 100;
 
     ctx.beginPath();
-    opacity = Math.round(remaining_life/life*100)/80
+
+    opacity = (Math.round(remaining_life/life*100)/80) * startOpacity;
+
+
     ctx.fillStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")";
 		ctx.strokeStyle = "rgba("+this.r+", "+this.g+", "+this.b+"," + opacity + ")";
     ctx.lineWidth=3;

@@ -1,11 +1,23 @@
 function Device(name, uuid, color) {
   var stationData = {};
+  var active = true;
+
   this.name = name;
 
   this.uuid = uuid;
 
   this.color = color;
 
+  this.mute = function(){
+    active = false;
+  }
+  this.highlight = function(){
+    active = true;
+  }
+
+  this.isActive = function(){
+    return active;
+  }
 
   this.updateData = function(station, distance){
       if(!stationData[station]){
@@ -39,4 +51,5 @@ function Device(name, uuid, color) {
 
       return d;
   };
+
 }

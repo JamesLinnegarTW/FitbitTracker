@@ -107,11 +107,14 @@ $(function(){
       for(deviceKey in devices){
         listHeight++
 				var device = devices[deviceKey];
+        var startOpacity = device.isActive()?1:0.3;
+
+
 
         if((now - device.lastSeen) > 300000) {
       		delete devices[deviceKeys[i]];
       	} else {
-  	    	tmpCtx.fillStyle = "rgb(" + device.color.r + ","  + device.color.g + ","  + device.color.b + ")";
+  	    	tmpCtx.fillStyle = "rgba(" + device.color.r + ","  + device.color.g + ","  + device.color.b + "," + startOpacity + ")";
 		      tmpCtx.fillText(device.name, 10, 30 + (listHeight * 30));
         }
 
@@ -123,7 +126,7 @@ $(function(){
             var station = stations[data[d].s];
             if(station) {
               var coords = station.getCoords();
-              particles.push(new Particle(coords.x, coords.y, scale, device.color));
+              particles.push(new Particle(coords.x, coords.y, scale, device.color, startOpacity));
             }
           }
        }
@@ -174,20 +177,48 @@ $(function(){
 
       var offsetY = $('#canvas').offset().top;
       var offsetX = $('#canvas').offset().left;
-
+      var ctx = $('#canvas').getContext("2d");
       evt.preventDefault();
 
       if(evt.touches){
+        var rawX = (evt.touches[0].clientX - offsetX);
+        var rawY = (evt.touches[0].clientY - offsetY);
         var x = ((evt.touches[0].clientX - offsetX)/1000) * 100;
         var y = ((evt.touches[0].clientY - offsetY)/1000) * 100;
       } else {
+        var rawX = (evt.clientX- offsetX);
+        var rawY = (evt.clientY- offsetY);
         var x = ((evt.clientX- offsetX) / 1000) * 100;
         var y = ((evt.clientY- offsetY) / 1000) * 100;
       }
 
+      var index = 0;
+
+      if(rawX < 200){
+        for(deviceKey in devices){
+          var device = devices[deviceKey];
+          index++;
+          var top = (index * 30)-15;
+          var bottom = (index  * 30)+15;
+
+          console.log(top,bottom);
+          if((rawY >= top) && (rawY <= bottom) ) {
+            if(device.isActive()){
+              device.mute();
+            } else {
+              device.highlight();
+            }
+          }
+        }
+      }
 
 
+
+      for(device in devices){
+
+      }
       for(station in stations){
+
 
         var coords = stations[station].getCoords();
 
