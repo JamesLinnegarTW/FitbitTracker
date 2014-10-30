@@ -8,6 +8,8 @@ function Device(name, uuid, color) {
 
   this.color = color;
 
+  this.lastSeen = new Date();
+
   this.mute = function(){
     active = false;
   }
@@ -25,6 +27,8 @@ function Device(name, uuid, color) {
       }
 
       stationData[station].add({d:distance, t: new Date()});
+
+      this.lastSeen = new Date();
   };
 
   function average(arr){
@@ -33,7 +37,7 @@ function Device(name, uuid, color) {
     },0) / arr.length;
   }
 
-  this.getData = function(){
+  this.getData = function(time){
       var d = [];
 
       for(station in stationData){
@@ -41,7 +45,7 @@ function Device(name, uuid, color) {
         var positionData = stationData[station].getData();
 
         var currentTime = new Date();
-        var last5Seconds = _.filter(positionData, function(positionObject){ return ((currentTime - positionObject.t) < 5000); });
+        var last5Seconds = _.filter(positionData, function(positionObject){ return ((currentTime - positionObject.t) < time); });
         var distances = _.pluck(last5Seconds,'d');
 
         var a = average(distances);

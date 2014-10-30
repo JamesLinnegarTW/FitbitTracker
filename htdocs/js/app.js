@@ -53,7 +53,7 @@ $(function(){
 
       	var stationID = data.station;
 
-      //  if(data.name){
+
           if(!devices[data.uuid]){
           	devices[data.uuid]  = new Device(data.name, data.uuid, randomColor());
           }
@@ -65,17 +65,13 @@ $(function(){
   				if(!stations[stationID]) {
     				stations[stationID] = new Station(stationID, 50,20);
     			}
-       // }
+
 
       });
 
     });
 
 
-    function resetCanvas(rCtx){
-      rCtx.fillStyle = "black";
-      rCtx.fillRect(0, 0, W, H);
-    }
 
     function draw() {
       var tmpCanvas = document.createElement('canvas');
@@ -85,24 +81,25 @@ $(function(){
       var tmpCtx = tmpCanvas.getContext("2d");
       var now = new Date();
 
-      resetCanvas(tmpCtx);
+      tmpCtx.fillStyle = "black";
+      tmpCtx.fillRect(0, 0, W, H);
 
-     if(particles.length > 0){
+       if(particles.length > 0){
 
-       for(var i = 0; i < particles.length; i++) {
-         if(!particles[i].draw(tmpCtx)){
-           particles.splice(i,1);
-           i--;
+         for(var i = 0; i < particles.length; i++) {
+           if(!particles[i].draw(tmpCtx)){
+             particles.splice(i,1);
+             i--;
+           }
          }
        }
-     }
-
-
-      tmpCtx.font = "15px Georgia";
 
 
       var drawDevices = ((new Date() - lastUpdate) > 1000);
       var listHeight = -1;
+
+
+      tmpCtx.font = "15px Georgia";
 
       for(deviceKey in devices){
         listHeight++
@@ -112,14 +109,14 @@ $(function(){
 
 
         if((now - device.lastSeen) > 300000) {
-      		delete devices[deviceKeys[i]];
+      		delete devices[deviceKey];
       	} else {
   	    	tmpCtx.fillStyle = "rgba(" + device.color.r + ","  + device.color.g + ","  + device.color.b + "," + startOpacity + ")";
-		      tmpCtx.fillText(device.name, 10, 30 + (listHeight * 30));
+		      tmpCtx.fillText(device.name + " " + device.uuid, 30, 40 + (listHeight * 40));
         }
 
         if(drawDevices){
-          var data = device.getData();
+          var data = device.getData(10000);
 
           for(var d = 0; d < data.length; d++){
             var scale = (data[d].d / 100 ) * 1000;
@@ -141,13 +138,12 @@ $(function(){
       }
 
       ctx.drawImage(tmpCanvas, 0, 0);
-      lastRender = new Date();
 
-      requestAnimationFrame(draw, canvas);
+      requestAnimationFrame(draw);
     }
 
 
-    requestAnimationFrame(draw, canvas);
+    requestAnimationFrame(draw);
 
 
 
@@ -177,7 +173,7 @@ $(function(){
 
       var offsetY = $('#canvas').offset().top;
       var offsetX = $('#canvas').offset().left;
-      var ctx = $('#canvas').getContext("2d");
+
       evt.preventDefault();
 
       if(evt.touches){
@@ -194,29 +190,29 @@ $(function(){
 
       var index = 0;
 
-      if(rawX < 200){
+      if(rawX < 100){
         for(deviceKey in devices){
           var device = devices[deviceKey];
           index++;
-          var top = (index * 30)-15;
-          var bottom = (index  * 30)+15;
+          var top = (index * 40)-20;
+          var bottom = (index  * 40)+20;
 
-          console.log(top,bottom);
+
           if((rawY >= top) && (rawY <= bottom) ) {
-            if(device.isActive()){
-              device.mute();
+
+            if(rawX < 30){
+              if(device.isActive()){
+                device.mute();
+              } else {
+                device.highlight();
+              }
             } else {
-              device.highlight();
+              device.color= randomColor();
             }
           }
         }
       }
 
-
-
-      for(device in devices){
-
-      }
       for(station in stations){
 
 
