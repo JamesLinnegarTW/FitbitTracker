@@ -1,8 +1,9 @@
 
 
 $(function(){
-    var canvas = document.getElementById("canvas");
+    var canvas = $("#canvas");
     var ctx = canvas.getContext("2d");
+
     var lastRender = new Date();
     var lastUpdate = new Date();
     var stations = {};
@@ -24,8 +25,6 @@ $(function(){
      H = window.innerHeight;
      canvas.width = W;
      canvas.height = H;
-     document.getElementById('container').style.height = H +'px';
-     document.getElementById('container').style.width = W + 'px';
 
    };
 
@@ -186,8 +185,8 @@ $(function(){
 
     function startMove(evt){
 
-      var offsetY = $('#canvas').offset().top;
-      var offsetX = $('#canvas').offset().left;
+      var offsetY = canvas.offset().top;
+      var offsetX = canvas.offset().left;
 
       evt.preventDefault();
 
