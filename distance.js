@@ -3,6 +3,10 @@ var math = require('mathjs');
 var os = require('os');
 var fs = require('fs');
 var mdns = require('mdns');
+var gpio = require('rpi-gpio');
+
+
+gpio.setup(7, gpio.DIR_OUT);
 
 var stationName = 'me';
 
@@ -10,6 +14,10 @@ var browser = mdns.createBrowser(mdns.tcp('fitbit'));
 var devices = {};
 var x = 50;
 var y = 50;
+
+
+var lightDelay;
+
 
 fs.readFile('/boot/device', 'utf8', function (err,data) {
   if (err) return;
@@ -45,7 +53,7 @@ var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 function start(ip){
   var socket = require('socket.io-client')('http://' + ip + ':8081');
 
-  console.log("Starting station " + stationName);
+  console.log("Starting station " + stationName + " talking to " + ip);
 
   socket.on('connect', function(){
     socket.emit('new_station', {n:stationName});
@@ -91,8 +99,17 @@ function start(ip){
     device.station =  stationName;
     device.rssi =     peripheral.rssi;
 
+
+
     if(!devices[peripheral.uuid]){
       devices[peripheral.uuid] = device;
+    }
+    if(device.uuid == 'f3c10dafeecd'){
+      if(device.distance < 5) {
+        turnOnLight();
+      } else {
+        turnOffLight();
+      }
     }
 
     sendToServer(device);
@@ -104,5 +121,23 @@ function start(ip){
     console.log(data);
     socket.emit('d_data', data);
   }
-    noble.startScanning([],true);
+
+  function turnOnLight(){
+    gpio.write(7, true, function(err) {
+        if (err) throw err;
+        console.log('Written to pin HIGH');
+    });
+    if(lightDelay) clearTimeout(lightDelay);
+    lightDelay = setTimeout(turnOffLight, 15000);
+  }
+  function turnOffLight(){
+      gpio.write(7, false, function(err) {
+        if (err) throw err;
+        console.log('Written to pin LOW');
+    });
+    if(lightDelay) clearTimeout(lightDelay);
+  }
+
+  noble.startScanning([],true);
+
 }

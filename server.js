@@ -14,10 +14,14 @@ ad.start();
 
 var io = require('socket.io').listen(http);
 io.sockets.on('connection', function(socket){
-	console.log('client');
+
+	socket.on('view_client', function(){
+		console.log('view connected');
+		clients.push(socket);
+	});
 
 	socket.on('new_station', function(data){
-		console.log('new station '+ data.n);
+		console.log('new station '+ data.n + ' connected');
 		io.sockets.emit('new_station', data);
 	});
 
@@ -25,7 +29,6 @@ io.sockets.on('connection', function(socket){
 		console.log('remove station '+data.n);
 		io.sockets.emit('remove_station', data);
 	});
-
 
 	socket.on('d_data', function(data){
 		io.sockets.emit('ble_data', data);

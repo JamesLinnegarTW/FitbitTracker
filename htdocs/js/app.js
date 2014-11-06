@@ -1,16 +1,17 @@
 
 
 $(function(){
-    var canvas = $("#canvas");
+    var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
-
     var lastRender = new Date();
     var lastUpdate = new Date();
     var stations = {};
     var devices = {};
     var particles = [];
-
+    var startFrom = {x:0,y:0};
+    var drawFrom = {x:0,y:0};
     var dragID;
+    var rootScale = 1000;
 
     var   W = window.innerWidth ,
           H = window.innerHeight;
@@ -37,7 +38,7 @@ $(function(){
 		}
 
     socket.on('connect', function () {
-      socket.emit('client',{});
+      socket.emit('view_client',{});
     	socket.on('new_station', function(data){
     		stations[data.n] = new Station(data.n, 50,50);
 
@@ -72,10 +73,10 @@ $(function(){
 
           devices[data.uuid].updateData(stationID, data.distance);
 
-  				var scale = (data.distance / 100 ) * 1000;
+  				var scale = (data.distance / 100 ) * rootScale;
 
   				if(!stations[stationID]) {
-    				stations[stationID] = new Station(stationID, 50,20);
+    				stations[stationID] = new Station(stationID, 50,50);
     			}
 
 
@@ -107,9 +108,8 @@ $(function(){
        }
 
 
-      var drawDevices = ((new Date() - lastUpdate) > 1000);
+      var drawDevices = ((new Date() - lastUpdate) > 2000);
       var listHeight = -1;
-
 
       tmpCtx.font = "15px Georgia";
 
@@ -133,11 +133,11 @@ $(function(){
           var data = device.getData(10000);
 
           for(var d = 0; d < data.length; d++){
-            var scale = (data[d].d / 100 ) * 1000;
+            var scale = (data[d].d / 100 ) * rootScale;
             var station = stations[data[d].s];
             if(station) {
               var coords = station.getCoords();
-              particles.push(new Particle(coords.x, coords.y, scale, device.color, startOpacity));
+              particles.push(new Particle(coords.x, coords.y, scale, device.color, startOpacity, drawFrom, rootScale));
             }
           }
        }
@@ -148,7 +148,7 @@ $(function(){
       }
 
       for(station in stations){
-      	stations[station].draw(tmpCtx, (20/ 100) * 1000);
+      	stations[station].draw(tmpCtx, drawFrom, rootScale);
       }
 
       ctx.drawImage(tmpCanvas, 0, 0);
@@ -162,20 +162,27 @@ $(function(){
 
 
     function moving(evt){
+
       var offsetY = $('#canvas').offset().top;
       var offsetX = $('#canvas').offset().left;
       evt.preventDefault();
 
       if(evt.touches){
-        var x = evt.touches[0].clientX- offsetX;
-        var y = evt.touches[0].clientY- offsetY;
+        if(evt.touches.length == 1){
+          var x = evt.touches[0].clientX- offsetX - drawFrom.x;
+          var y = evt.touches[0].clientY- offsetY - drawFrom.y;
+        } else {
+          console.log(startFrom.x, drawFrom.x, startFrom.y, drawFrom.y);
+          drawFrom.x = drawFrom.x + ((startFrom.x + (evt.touches[0].clientX - offsetX))/10);
+          drawFrom.y =  drawFrom.y + ((startFrom.y + (evt.touches[0].clientY - offsetY))/10);
+        }
       } else {
-        var x = evt.clientX- offsetX;
-        var y = evt.clientY- offsetY;
+        var x = evt.clientX- offsetX- drawFrom.x;
+        var y = evt.clientY- offsetY- drawFrom.y;
       }
 
       if(dragID && stations[dragID]){
-        stations[dragID].setCoords((x / 1000) * 100, (y / 1000) * 100);
+        stations[dragID].setCoords((x / rootScale) * 100, (y / rootScale) * 100);
         particles = [];
       }
 
@@ -184,22 +191,29 @@ $(function(){
 
 
     function startMove(evt){
-
-      var offsetY = canvas.offset().top;
-      var offsetX = canvas.offset().left;
+      console.log('start move');
+      var offsetY = $('#canvas').offset().top;
+      var offsetX = $('#canvas').offset().left;
 
       evt.preventDefault();
 
       if(evt.touches){
-        var rawX = (evt.touches[0].clientX - offsetX);
-        var rawY = (evt.touches[0].clientY - offsetY);
-        var x = ((evt.touches[0].clientX - offsetX)/1000) * 100;
-        var y = ((evt.touches[0].clientY - offsetY)/1000) * 100;
+        if(evt.touches.length == 1){
+
+          var rawX = (evt.touches[0].clientX - offsetX) - drawFrom.x;
+          var rawY = (evt.touches[0].clientY - offsetY) - drawFrom.y;
+          var x = (rawX/rootScale) * 100;
+          var y = (rawY/rootScale) * 100;
+        } else {
+          startFrom.x = (evt.touches[0].clientX - offsetX);
+          startFrom.y = (evt.touches[0].clientY - offsetY);
+        }
+
       } else {
         var rawX = (evt.clientX- offsetX);
         var rawY = (evt.clientY- offsetY);
-        var x = ((evt.clientX- offsetX) / 1000) * 100;
-        var y = ((evt.clientY- offsetY) / 1000) * 100;
+        var x = (rawX / rootScale) * 100;
+        var y = (rawY / rootScale) * 100;
       }
 
       var index = 0;

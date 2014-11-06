@@ -1,8 +1,8 @@
-function Particle(x, y, particleSize, color, startOpacity) {
+function Particle(x, y, particleSize, color, startOpacity, drawFrom, rootScale) {
 
   var startTime = new Date();
 
-  var location = {x: (x/100) * 1000, y: (y/100) * 1000};
+  var location = {x: ((x/100) * rootScale) + drawFrom.x, y: ((y/100) * rootScale) + drawFrom.y};
 
   var radius = particleSize;
 
