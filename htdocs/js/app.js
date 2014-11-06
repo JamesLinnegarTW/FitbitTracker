@@ -119,7 +119,7 @@ $(function(){
         var textOpacity = device.isActive()?1:0.3;
         var startOpacity = device.isActive()?1:0.1;
 
-        if((now - device.lastSeen) > 300000) {
+        if((now - device.lastSeen) > 150000) {
       		delete devices[deviceKey];
       	} else {
   	    	tmpCtx.fillStyle = "rgba(" + device.color.r + ","  + device.color.g + ","  + device.color.b + "," + textOpacity + ")";
@@ -130,7 +130,7 @@ $(function(){
         }
 
         if(drawDevices){
-          var data = device.getData(10000);
+          var data = device.getData(5000);
 
           for(var d = 0; d < data.length; d++){
             var scale = (data[d].d / 100 ) * rootScale;

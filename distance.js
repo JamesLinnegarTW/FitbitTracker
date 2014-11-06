@@ -6,7 +6,7 @@ var mdns = require('mdns');
 var gpio = require('rpi-gpio');
 
 
-gpio.setup(7, gpio.DIR_OUT);
+gpio.setup(7, gpio.DIR_OUT, function(){});
 
 var stationName = 'me';
 
