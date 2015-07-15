@@ -2,15 +2,13 @@ var noble = require('noble');
 var math = require('mathjs');
 var os = require('os');
 var fs = require('fs');
-var mdns = require('mdns');
 var gpio = require('rpi-gpio');
 
 
 gpio.setup(7, gpio.DIR_OUT, function(){});
 
-var stationName = 'me';
+var stationName = os.hostname();
 
-var browser = mdns.createBrowser(mdns.tcp('fitbit'));
 var devices = {};
 var x = 50;
 var y = 50;
@@ -18,22 +16,6 @@ var y = 50;
 
 var lightDelay;
 
-
-fs.readFile('/boot/device', 'utf8', function (err,data) {
-  if (err) return;
-  stationName = data;
-});
-
-
-browser.on('serviceUp', function(service){
- start(service.addresses[0]);
-});
-
-browser.on('serviceDown', function(service){
-
-});
-
-browser.start();
 
 var clients = [];
 var devices = [];
@@ -141,3 +123,5 @@ function start(ip){
   noble.startScanning([],true);
 
 }
+
+start(process.argv[2]);
