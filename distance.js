@@ -31,7 +31,7 @@ var d2 = 20.0; //float
 var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 
 function start(ip){
-gpio.setup(7, gpio.DIR_OUT, write);
+
   var socket = require('socket.io-client')('http://' + ip + ':8081');
 
   console.log("Starting station " + stationName + " talking to " + ip);
@@ -107,7 +107,7 @@ gpio.setup(7, gpio.DIR_OUT, write);
 
  
 function write() {
-    gpio.write(7, true, function(err) {
+    gpio.write(7, false, function(err) {
         if (err) throw err;
         console.log('Written to pin');
     });
@@ -132,5 +132,7 @@ function write() {
   noble.startScanning([],true);
 
 }
+gpio.setup(7, gpio.DIR_OUT, function(){
+  start(process.argv[2]);
+});
 
-start(process.argv[2]);
