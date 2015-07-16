@@ -3,9 +3,7 @@ var math = require('mathjs');
 var os = require('os');
 var fs = require('fs');
 var gpio = require('rpi-gpio');
-
-
-gpio.setup(7, gpio.DIR_OUT, function(){});
+ 
 
 var stationName = os.hostname();
 
@@ -33,6 +31,7 @@ var d2 = 20.0; //float
 var n = (r2 - r1) / (10 * math.log10(d1 / d2)); //float
 
 function start(ip){
+gpio.setup(7, gpio.DIR_OUT, write);
   var socket = require('socket.io-client')('http://' + ip + ':8081');
 
   console.log("Starting station " + stationName + " talking to " + ip);
@@ -86,7 +85,7 @@ function start(ip){
     if(!devices[peripheral.uuid]){
       devices[peripheral.uuid] = device;
     }
-    if(device.uuid == 'f3c10dafeecd'){
+    if(device.uuid == process.argv[3]){
       if(device.distance < 5) {
         turnOnLight();
       } else {
@@ -103,6 +102,16 @@ function start(ip){
     console.log(data);
     socket.emit('d_data', data);
   }
+
+
+
+ 
+function write() {
+    gpio.write(7, true, function(err) {
+        if (err) throw err;
+        console.log('Written to pin');
+    });
+}
 
   function turnOnLight(){
     gpio.write(7, true, function(err) {
